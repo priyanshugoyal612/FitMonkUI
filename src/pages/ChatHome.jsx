@@ -10,7 +10,11 @@ function ChatHome()
 
     const handleChatStartClick=()=>
     {
-            navigate("/chat")
+        ///custome logic
+        //unique conversation id
+        //email id input
+
+            navigate("/login");
     }
 
     return <div className="h-screen w-screen flex flex-col justify-center items-center">

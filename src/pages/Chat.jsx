@@ -76,7 +76,6 @@ function Chat() {
     const [sending, setSending] = useState(false);
     const [conversationId, setConversationId] = useState("");
     const inputRef = useRef(null);
-    const naviagte = useNavigate();
 
     useEffect(() => {
         const id = uuidv4();
@@ -177,7 +176,7 @@ function Chat() {
                             <AvatarFallback className={"text-xs"}>PG</AvatarFallback>
                         </Avatar>
                         <div className="leading-tight">
-                            <div className="text-sm font-medium">Lizza Support</div>
+                            <div className="text-sm font-medium">Fit Monk</div>
                             <div className="text-xs text-muted-foreground">
 
                                 Online typing ....
@@ -187,10 +186,7 @@ function Chat() {
 
                     <div>
                         <Button 
-                        onClick={() =>{
-                        naviagte("/");
-
-                        } } 
+                        
                         variant={'ghost'} size={'icon'} className={'h-8 w-8'}>
                            <LogOut className={'h-4 w-4'}></LogOut>
                         </Button>
