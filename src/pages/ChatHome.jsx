@@ -23,6 +23,8 @@ function ChatHome()
         <h1 className="text-4xl font-bold">Welocme to Fit Monk AI</h1>
         <Button onClick={handleChatStartClick} className={'cursor-pointer'} variant ={"outline"}> Fit Monk Coach</Button>
 
+
+
         
          </div>
 }

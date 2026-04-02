@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { getInsights } from "../api/api";
 
-export default function Insights() {
+export default function Insights({insights}) {
   const [data, setData] = useState(null);
 
   useEffect(() => {

@@ -28,8 +28,8 @@ export default function Login() {
 
   return (
     <div className="flex h-screen items-center justify-center">
-      <div className="p-6 bg-white shadow rounded w-80">
-        <h2 className="text-xl font-bold mb-4">Login</h2>
+      <div className="p-6 shadow rounded w-80">
+        <h2 className="text-center font-bold  mb-6">Monk Login</h2>
 
         <Input
           className="border p-2 w-full mb-2"
@@ -45,7 +45,7 @@ export default function Login() {
         />
 
         <Button
-          className="bg-black text-white w-full p-2"
+          className="bg-white text-black w-full p-2"
           onClick={handleLogin}
         >
           Login

@@ -136,22 +136,28 @@ function Chat() {
 
     }
 
+    function handleKeyDown(e) {
+    if (e.key === "Enter") {
+        sendMessages();
+    }
+}
+
 
     return (
         <div className=" fixed top-0 left-0 right-0 mx-auto h-dvh min-h-screen max-w-7xl grid 
-    grid-cols-1 md:grid-cols-[300px_minmax(0,1fr)] border-x">
+    grid-cols-1 md:grid-cols-[300px_minmax(0,1fr)] border-bg-background">
             <div>
 
-                <aside className="hidden md:flex mdLflex-col border-r">
+                <aside className="hidden md:flex md:flex-col border-r">
                     <div className="p-3 flex items-center gap-2">
                         <Button size={'icon'} variant={"outline"} className={"h-8 w-8"}>
                             <Plus className="h-4 w-4" />
                         </Button>
                         <div className="relative w-full">
-                            <input
+                            <Input
                                 placeholder="Search Chats.."
                                 type="text"
-                                className="h-9 w-full pl-8 border rounded"
+                                className="h-9 w-full pl-8 border-b rounded"
                             />
                             <Search className="h-4 w-4 pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
 
@@ -168,7 +174,7 @@ function Chat() {
 
                 {/*header*/}
 
-                <div className="flex items-centre justify-between gap-3 px-4 py-3 border b">
+                <div className="flex items-centre justify-between gap-3 px-4 py-3 border-b">
                     <div className="flex gap-3">
                         <Avatar>
 
@@ -198,7 +204,7 @@ function Chat() {
 
                 </div>
                 <ScrollArea className={"flex-1 h-[calc(100vh-200px)]"}>
-                    <div className="mx-auto max-w-3xl px-6 py-6 space-y-6">
+                    <div className="mx-auto max-w-3xl px-4 md:px-6 py-4 space-y-4">
 
                         {
                             messages.map((chat, index) => (
@@ -217,7 +223,7 @@ function Chat() {
 
 
                 </ScrollArea>
-                <div className="border-t p-3">
+               <div className="border-t bg-background/80 backdrop-blur p-3 sticky bottom-0">
                     <div className="mx-auto flex max-w-3xl items-center gap-3 px-6 py-4">
 
                         <Input
