@@ -1,253 +1,206 @@
-import React, { use, useEffect, useRef, useState } from "react"
+import { useState, useRef, useEffect } from "react";
+import { sendMessage, resetConversationId } from "../services/chat.service";
+import { useNavigate } from "react-router";
 
-import { Search, Send, Plus, Section, LogOut } from "lucide-react";
+export default function Chat() {
+  const [messages, setMessages] = useState([
+    { role: "ai", text: "How can I help you to be a fit monk?" },
+  ]);
+  const [input, setInput] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
 
-import { MoreVertical } from "lucide-react"
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { ScrollArea } from "../components/ui/scroll-area";
-import { Spinner } from "../components/ui/spinner";
-import MessageBubble from "../components/ui/MessageBubble";
-import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
-import { sendMessage } from "../services/chat.service";
-import { v4 as uuidv4 } from "uuid";
+  const bottomRef = useRef(null);
+  const navigate = useNavigate();
 
-const CHATS = [{
+  // auto scroll
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
-    id: 1,
-    name: "How to start spring",
-    lastMessage: "How to be a Fit Monk",
-    unread: 2,
-    initailas: "AG"
+  // logout
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate("/login");
+  };
 
-},
-{
+  // send message
+  const send = async (customText) => {
+    const messageText = customText || input;
+    if (!messageText.trim()) return;
 
-    id: 2,
-    name: "Monk",
-    lastMessage: "How to be a Fit Monk",
-    unread: 2,
-    initailas: "TG"
+    setMessages((prev) => [
+      ...prev,
+      { role: "user", text: messageText },
+    ]);
 
-},
-{
+    setInput("");
+    setIsTyping(true);
 
-    id: 3,
-    name: "How to start spring",
-    lastMessage: "How to be a Fit Monk",
-    unread: 2,
-    initailas: "AG"
+    try {
+      const reply = await sendMessage(messageText);
 
-}
-    , {
-
-    id: 3,
-    name: "How to start spring",
-    lastMessage: "How to be a Fit Monk",
-    unread: 2,
-    initailas: "PG"
-
-}, {
-
-    id: 4,
-    name: "How to start spring",
-    lastMessage: "How to be a Fit Monk",
-    unread: 2,
-    initailas: "PG"
-
-}]
-
-const CONVERSTAION = [{
-
-    id: 1,
-    author: "bot",
-    text: "How I can help you to be a fit monk ?",
-    at: new Date().toLocaleTimeString()
-
-},
-
-]
-
-function Chat() {
-
-    const [messages, setMessages] = useState(CONVERSTAION);
-    const [draft, setDraft] = useState("");
-    const endRef = useRef(null);
-    const [sending, setSending] = useState(false);
-    const [conversationId, setConversationId] = useState("");
-    const inputRef = useRef(null);
-
-    useEffect(() => {
-        const id = uuidv4();
-        setConversationId(id);
-        inputRef.current.focus();
-    }, []);
-
-    useEffect(() => {
-        endRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [messages])
-
-    async function sendMessages() {
-        const textMessage = draft.trim();
-        if (!textMessage) return;
-
-        setSending(true);
-
-        console.log(draft);
-        console.log(conversationId);
-
-        setMessages((pre) => [
-            ...pre,
-            {
-                id: uuidv4(),
-                author: "user",
-                text: draft,
-                at: new Date().toLocaleTimeString()
-            },
-        ]);
-
-
-        const responseFromAI = await sendMessage(draft, conversationId);
-        console.log(responseFromAI);
-
-        setMessages((pre) => [
-            ...pre,
-            {
-                id: uuidv4,
-                author: "bot",
-                text: responseFromAI,
-                at: new Date().toLocaleTimeString()
-            },
-        ]);
-
-        setSending(false);
-
-
-
-
-
-        //call api to send message to bot
-        //setMessages
-        //setDraft("");
-
-        setDraft("");
-        inputRef.current?.focus();
-
-
+      setMessages((prev) => [
+        ...prev,
+        { role: "ai", text: reply },
+      ]);
+    } catch (e) {
+      setMessages((prev) => [
+        ...prev,
+        { role: "ai", text: "⚠️ Error connecting to AI" },
+      ]);
+    } finally {
+      setIsTyping(false);
     }
+  };
 
-    function handleKeyDown(e) {
-    if (e.key === "Enter") {
-        sendMessages();
-    }
-}
+  return (
+    <div className="h-screen bg-gray-950 text-white flex flex-col">
 
+      {/* 🔥 HEADER */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-800">
+        
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center">
+            🧘
+          </div>
 
-    return (
-        <div className=" fixed top-0 left-0 right-0 mx-auto h-dvh min-h-screen max-w-7xl grid 
-    grid-cols-1 md:grid-cols-[300px_minmax(0,1fr)] border-bg-background">
-            <div>
+          <div>
+            <p className="font-semibold">Fit Monk</p>
+            <p className="text-xs text-gray-400">AI Coach • Online</p>
+          </div>
+        </div>
 
-                <aside className="hidden md:flex md:flex-col border-r">
-                    <div className="p-3 flex items-center gap-2">
-                        <Button size={'icon'} variant={"outline"} className={"h-8 w-8"}>
-                            <Plus className="h-4 w-4" />
-                        </Button>
-                        <div className="relative w-full">
-                            <Input
-                                placeholder="Search Chats.."
-                                type="text"
-                                className="h-9 w-full pl-8 border-b rounded"
-                            />
-                            <Search className="h-4 w-4 pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground" />
+        {/* 🔥 ACTION BUTTONS */}
+        <div className="flex gap-2">
 
+          {/* 🏠 Dashboard */}
+          <button
+            onClick={() => navigate("/")}
+            className="px-3 py-1 text-sm bg-gray-800 hover:bg-gray-700 rounded-lg"
+          >
+            🏠 Dashboard
+          </button>
 
-                        </div>
-                    </div>
+          {/* 🆕 New Chat */}
+          <button
+            onClick={() => {
+              resetConversationId();
+              setMessages([]);
+            }}
+            className="px-3 py-1 text-sm bg-gray-800 hover:bg-gray-700 rounded-lg"
+          >
+            + New Chat
+          </button>
 
-                </aside>
+          {/* 🚪 Logout */}
+          <button
+            onClick={handleLogout}
+            className="px-3 py-1 text-sm bg-red-500 hover:bg-red-600 rounded-lg"
+          >
+            Logout
+          </button>
 
+        </div>
+      </div>
+
+      {/* 🔥 CONTEXT BANNER */}
+      <div className="bg-gray-900 text-sm p-3 border-b border-gray-800">
+        🔥 Today: 1200 cal | ❌ Workout | ✅ Focus | Score: 72
+      </div>
+
+      {/* 🔥 CHAT AREA */}
+      <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3">
+
+        {messages.length === 1 && (
+          <div className="flex flex-col items-center justify-center text-center text-gray-400 mt-10">
+            
+            <h2 className="text-xl font-semibold mb-4">
+              🧘 Your AI Monk Coach
+            </h2>
+
+            <p className="mb-6">
+              Ask anything about fitness, discipline, or your daily progress
+            </p>
+
+            <div className="grid grid-cols-2 gap-3 max-w-md">
+              <button onClick={() => send("Analyze my progress")} className="suggestion-btn">
+                🔥 Analyze progress
+              </button>
+              <button onClick={() => send("Give me a workout plan")} className="suggestion-btn">
+                💪 Workout plan
+              </button>
+              <button onClick={() => send("Fix my diet")} className="suggestion-btn">
+                🥗 Fix diet
+              </button>
+              <button onClick={() => send("Improve focus")} className="suggestion-btn">
+                🧠 Improve focus
+              </button>
             </div>
-            <section className="h-full border-l">
 
+          </div>
+        )}
 
+        {messages.map((msg, i) => (
+          <div
+            key={i}
+            className={`max-w-[70%] px-4 py-2 rounded-xl ${
+              msg.role === "user"
+                ? "bg-blue-600 self-end"
+                : "bg-gray-800 self-start"
+            }`}
+          >
+            {msg.text}
+          </div>
+        ))}
 
-                {/*header*/}
+        {isTyping && (
+          <div className="text-gray-400">Monk is thinking...</div>
+        )}
 
-                <div className="flex items-centre justify-between gap-3 px-4 py-3 border-b">
-                    <div className="flex gap-3">
-                        <Avatar>
+        <div ref={bottomRef}></div>
+      </div>
 
-                            <AvatarImage src="" />
-                            <AvatarFallback className={"text-xs"}>PG</AvatarFallback>
-                        </Avatar>
-                        <div className="leading-tight">
-                            <div className="text-sm font-medium">Fit Monk</div>
-                            <div className="text-xs text-muted-foreground">
+      {/* 🔥 INPUT */}
+      <div className="border-t border-gray-800 p-4 flex justify-center">
+        
+        <div className="flex w-full max-w-3xl gap-3">
 
-                                Online typing ....
-                            </div>
-                        </div>
-                    </div>
+          <input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Ask your AI Monk..."
+            className="flex-1 bg-gray-900 px-4 py-3 rounded-full outline-none border border-gray-700 focus:border-blue-500"
+            onKeyDown={(e) => {
+              if (e.key === "Enter") send();
+            }}
+          />
 
-                    <div>
-                        <Button 
-                        
-                        variant={'ghost'} size={'icon'} className={'h-8 w-8'}>
-                           <LogOut className={'h-4 w-4'}></LogOut>
-                        </Button>
-                        <Button variant={'ghost'} size={'icon'} className={'h-8 w-8'}>
-                            <MoreVertical className={'h-4 w-4'}></MoreVertical>
-                        </Button>
+          <button
+            onClick={() => send()}
+            className="px-5 py-3 bg-blue-500 hover:bg-blue-600 rounded-full"
+          >
+            ➤
+          </button>
 
-                    </div>
+        </div>
+      </div>
 
-                </div>
-                <ScrollArea className={"flex-1 h-[calc(100vh-200px)]"}>
-                    <div className="mx-auto max-w-3xl px-4 md:px-6 py-4 space-y-4">
+      {/* 🔥 STYLES */}
+      <style>
+        {`
+          .suggestion-btn {
+            background: #1e293b;
+            padding: 10px;
+            border-radius: 10px;
+            transition: 0.2s;
+          }
 
-                        {
-                            messages.map((chat, index) => (
-                                <MessageBubble keys={chat.id} author={chat.author} at={chat.at}>
+          .suggestion-btn:hover {
+            background: #334155;
+          }
+        `}
+      </style>
 
-                                    {chat.text}
-
-                                </MessageBubble>
-
-
-                            ))
-                        }
-
-                    </div>
-                    <div ref={endRef}></div>
-
-
-                </ScrollArea>
-               <div className="border-t bg-background/80 backdrop-blur p-3 sticky bottom-0">
-                    <div className="mx-auto flex max-w-3xl items-center gap-3 px-6 py-4">
-
-                        <Input
-                            ref={inputRef}
-                            value={draft}
-                            onChange={(e) => setDraft(e.target.value)}
-                            placeholder="Type your message here..."
-                            type="text" className="w-full rounded-full border px-4 py-2 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2" />
-
-                        <Button disabled={sending}
-                            onClick={sendMessages} className={"px-5 rounded-2xl"}>
-
-                            {sending ? <Spinner /> : <Send className="h-4 w-4" />}
-                            {sending ? "Sending...." : "Send"}
-                        </Button>
-
-
-                    </div>
-                </div>
-
-
-
-            </section>
-
-        </div>);
+    </div>
+  );
 }
-export default Chat

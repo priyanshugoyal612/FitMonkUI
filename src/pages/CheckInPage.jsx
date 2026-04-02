@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { submitDailyLog } from "../services/checkin.service";
+import { useNavigate } from "react-router";
 
 const CheckInPage = () => {
   const today = new Date().toISOString().split("T")[0];
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    date: today, // UI only (not sent to backend)
+    date: today,
     calories: "",
     steps: "",
     focus: false,
@@ -16,6 +18,11 @@ const CheckInPage = () => {
 
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState(null);
+
+  const handleLogout = () => {
+    localStorage.clear();
+    navigate("/login");
+  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -41,10 +48,8 @@ const CheckInPage = () => {
       };
 
       const res = await submitDailyLog(payload);
-
       setResponse(res);
 
-      // reset form
       setFormData({
         date: today,
         calories: "",
@@ -56,7 +61,6 @@ const CheckInPage = () => {
       });
 
     } catch (error) {
-      console.error(error);
       setResponse({
         message: "❌ Failed to submit check-in",
         aiFeedback: [],
@@ -67,14 +71,49 @@ const CheckInPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white flex items-center justify-center px-4">
-      <div className="w-full max-w-md bg-gray-900 rounded-2xl shadow-lg p-6">
+    <div className="min-h-screen bg-gray-950 text-white px-4 py-6">
+
+      {/* 🔥 HEADER */}
+      <div className="flex justify-between items-center mb-6 max-w-4xl mx-auto">
+
+        <h1 className="text-xl font-bold">🧘 Daily Check-In</h1>
+
+        <div className="flex gap-2">
+
+          {/* 🏠 Dashboard */}
+          <button
+            onClick={() => navigate("/")}
+            className="px-3 py-1 text-sm bg-gray-800 hover:bg-gray-700 rounded-lg"
+          >
+            🏠 Dashboard
+          </button>
+
+          {/* 💬 AI Coach */}
+          <button
+            onClick={() => navigate("/chat")}
+            className="px-3 py-1 text-sm bg-purple-500 hover:bg-purple-600 rounded-lg"
+          >
+            💬 AI Coach
+          </button>
+
+          {/* 🚪 Logout */}
+          <button
+            onClick={handleLogout}
+            className="px-3 py-1 text-sm bg-red-500 hover:bg-red-600 rounded-lg"
+          >
+            Logout
+          </button>
+
+        </div>
+      </div>
+
+      {/* 🔥 CARD */}
+      <div className="w-full max-w-md bg-gray-900 rounded-2xl shadow-lg p-6 mx-auto">
 
         <h2 className="text-2xl font-bold mb-6 text-center">
           Daily Monk Check-In
         </h2>
 
-        {/* RESPONSE MESSAGE */}
         {response && (
           <div className="mb-4 text-center">
             <p className="text-green-400 font-medium">{response.message}</p>
@@ -83,18 +122,16 @@ const CheckInPage = () => {
 
         <form onSubmit={handleSubmit} className="space-y-5">
 
-          {/* Date (Disabled UI only) */}
           <div>
             <label className="block text-sm mb-1">Date</label>
             <input
               type="date"
               value={formData.date}
               disabled
-              className="w-full px-3 py-2 rounded-lg bg-gray-800 text-gray-400 cursor-not-allowed"
+              className="w-full px-3 py-2 rounded-lg bg-gray-800 text-gray-400"
             />
           </div>
 
-          {/* Calories */}
           <div>
             <label className="block text-sm mb-1">Calories</label>
             <input
@@ -107,7 +144,6 @@ const CheckInPage = () => {
             />
           </div>
 
-          {/* Steps */}
           <div>
             <label className="block text-sm mb-1">Steps</label>
             <input
@@ -120,42 +156,23 @@ const CheckInPage = () => {
             />
           </div>
 
-          {/* Toggles */}
           <div className="grid grid-cols-2 gap-3">
-
-            <label className="flex items-center gap-2 bg-gray-800 p-3 rounded-lg cursor-pointer">
-              <input
-                type="checkbox"
-                name="workout"
-                checked={formData.workout}
-                onChange={handleChange}
-              />
+            <label className="flex items-center gap-2 bg-gray-800 p-3 rounded-lg">
+              <input type="checkbox" name="workout" checked={formData.workout} onChange={handleChange} />
               Workout
             </label>
 
-            <label className="flex items-center gap-2 bg-gray-800 p-3 rounded-lg cursor-pointer">
-              <input
-                type="checkbox"
-                name="focus"
-                checked={formData.focus}
-                onChange={handleChange}
-              />
+            <label className="flex items-center gap-2 bg-gray-800 p-3 rounded-lg">
+              <input type="checkbox" name="focus" checked={formData.focus} onChange={handleChange} />
               Focus
             </label>
 
-            <label className="flex items-center gap-2 bg-gray-800 p-3 rounded-lg cursor-pointer col-span-2">
-              <input
-                type="checkbox"
-                name="noDopamine"
-                checked={formData.noDopamine}
-                onChange={handleChange}
-              />
-              No Dopamine (No Social Media / Junk)
+            <label className="flex items-center gap-2 bg-gray-800 p-3 rounded-lg col-span-2">
+              <input type="checkbox" name="noDopamine" checked={formData.noDopamine} onChange={handleChange} />
+              No Dopamine
             </label>
-
           </div>
 
-          {/* Notes */}
           <div>
             <label className="block text-sm mb-1">Notes</label>
             <textarea
@@ -167,18 +184,16 @@ const CheckInPage = () => {
             />
           </div>
 
-          {/* Submit */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-green-600 hover:bg-green-700 transition py-2 rounded-lg font-semibold disabled:opacity-50"
+            className="w-full bg-green-600 hover:bg-green-700 py-2 rounded-lg font-semibold"
           >
             {loading ? "Submitting..." : "Submit Check-In"}
           </button>
 
         </form>
 
-        {/* 🔥 AI FEEDBACK SECTION */}
         {response?.aiFeedback?.length > 0 && (
           <div className="mt-6 bg-gray-800 p-4 rounded-xl">
             <h3 className="text-lg font-semibold mb-3 text-green-400">

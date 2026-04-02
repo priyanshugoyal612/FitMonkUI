@@ -1,32 +1,36 @@
-import axios from "axios";
 import API from "./api";
 
-const API_URL = "http://localhost:8080/fit/monk/ai/chat";
+// get or create conversationId
+export const getConversationId = () => {
+  let id = localStorage.getItem("conversationId");
 
+  if (!id) {
+    id = crypto.randomUUID();
+    localStorage.setItem("conversationId", id);
+  }
 
+  return id;
+};
 
-export const getInsights = () => API.get("/monk/insights/weekly");
+// reset conversation (new chat)
+export const resetConversationId = () => {
+  const newId = crypto.randomUUID();
+  localStorage.setItem("conversationId", newId);
+  return newId;
+};
 
-export const getLogin = (userId,password) => API.post("/auth/login", {
-    userId,
-    password,
+// send message
+export const sendMessage = async (message) => {
+  const token = localStorage.getItem("token");
+  const conversationId = getConversationId();
+
+  const response = await API.post("/fit/monk/ai/chat", message, {
+    headers: {
+      "Content-Type": "text/plain",
+      conversationId: conversationId,
+      Authorization: `Bearer ${token}`,
+    },
   });
 
-export const sendMessage = async (message,conversationId)=> {
-
-     const token = localStorage.getItem("token");
-
-    const response = await axios.post(`${API_URL}`, message,{
-        headers: {
-            conversationId: conversationId,
-            Authorization: `Bearer ${token}`,
-            
-        },
-        
-     });
-
-     return response.data;
-    };
-
-
-
+  return response.data;
+};
